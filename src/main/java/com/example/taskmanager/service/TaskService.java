@@ -1,6 +1,7 @@
 package com.example.taskmanager.service;
 
 import com.example.taskmanager.entity.Task;
+import com.example.taskmanager.exception.TaskNotFoundException;
 import com.example.taskmanager.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,32 +23,38 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Optional<Task> getTasksById(Long id) {
-        return taskRepository.findById(id);
+    public Task getTasksById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new TaskNotFoundException(id);
+                });
     }
 
     public Task createTask(Task task) {
         return taskRepository.save(task);
     }
 
-    public Optional<Task> updateTask(Long id, Task updatedTask) {
+    public Task updateTask(Long id, Task updatedTask) {
 
-        return taskRepository.findById(id)
-                .map(task -> {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new TaskNotFoundException(id);
+                });
+
                     task.setTitle(updatedTask.getTitle());
                     task.setDescription(updatedTask.getDescription());
                     task.setCompleted(updatedTask.getCompleted());
-
                     return taskRepository.save(task);
-                });
+
     }
 
     public boolean deleteTask(Long id) {
-        return taskRepository.findById(id)
-                .map(task -> {
-                    taskRepository.delete(task);
-                    return true;
-                }).orElse(null);
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> {
+                    throw new TaskNotFoundException(id);
+                });
+                taskRepository.delete(task);
+                return true;
     }
 
     public List<Task> getAllCompletedTasks(boolean status) {
