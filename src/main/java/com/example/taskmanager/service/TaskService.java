@@ -18,11 +18,11 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> findAll() {
+    public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-    public Optional<Task> findById(Long id) {
+    public Optional<Task> getTasksById(Long id) {
         return taskRepository.findById(id);
     }
 
@@ -30,14 +30,16 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public Task updateTask(Long id, Task updatedTask) {
-        return taskRepository.findById(updatedTask.getId())
+    public Optional<Task> updateTask(Long id, Task updatedTask) {
+
+        return taskRepository.findById(id)
                 .map(task -> {
                     task.setTitle(updatedTask.getTitle());
                     task.setDescription(updatedTask.getDescription());
                     task.setCompleted(updatedTask.getCompleted());
+
                     return taskRepository.save(task);
-                }).orElse(null);
+                });
     }
 
     public boolean deleteTask(Long id) {
